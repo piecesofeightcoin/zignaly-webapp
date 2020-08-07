@@ -168,6 +168,10 @@ export const createTraderRoutes = (providerId, provider) => {
           id: "srv.positions",
           to: `/copyTraders/${provider.id}/positions`,
         },
+        {
+          id: "srv.news",
+          to: `/copyTraders/${provider.id}/news`,
+        },
       ],
     };
     if (provider.isAdmin) {
