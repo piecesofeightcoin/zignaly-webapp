@@ -34,11 +34,15 @@ export const routesMapping = (path) => {
         links: [
           {
             id: "dashboard.positions",
-            to: "/dashboard/positions",
+            to: "/dashboard",
           },
           {
             id: "dashboard.balance",
             to: "/dashboard/balance",
+          },
+          {
+            id: "srv.analytics",
+            to: "/dashboard/analytics",
           },
           {
             id: "dashboard.traders",
@@ -54,7 +58,7 @@ export const routesMapping = (path) => {
         links: [
           {
             id: "srv.browse",
-            to: "/copyTraders/browse",
+            to: "/copyTraders",
           },
           {
             id: "srv.analytics",
@@ -70,7 +74,7 @@ export const routesMapping = (path) => {
         links: [
           {
             id: "srv.browse",
-            to: "/signalProviders/browse",
+            to: "/signalProviders",
           },
           {
             id: "srv.analytics",
@@ -86,7 +90,7 @@ export const routesMapping = (path) => {
         links: [
           {
             id: "srv.profile",
-            to: "/copyTrader/profile",
+            to: "/copyTrader",
           },
           {
             id: "srv.analytics",
@@ -126,7 +130,7 @@ export const routesMapping = (path) => {
         links: [
           {
             id: "dashboard.positions",
-            to: "/dashboard/positions",
+            to: "/dashboard",
           },
           {
             id: "dashboard.balance",
@@ -158,7 +162,7 @@ export const createTraderRoutes = (providerId, provider) => {
       links: [
         {
           id: "srv.profile",
-          to: `/copyTraders/${provider.id}/profile`,
+          to: `/copyTraders/${provider.id}`,
         },
         {
           id: "srv.analytics",
@@ -199,7 +203,7 @@ export const createTraderRoutes = (providerId, provider) => {
     links: [
       {
         id: "srv.profile",
-        to: `/copyTraders/${provider.id}/profile`,
+        to: `/copyTraders/${provider.id}`,
       },
       {
         id: "srv.analytics",
@@ -229,7 +233,7 @@ export const createProviderRoutes = (providerId, provider) => {
       links: [
         {
           id: "srv.profile",
-          to: `/signalProviders/${provider.id}/profile`,
+          to: `/signalProviders/${provider.id}`,
         },
         {
           id: "srv.analytics",
@@ -263,7 +267,7 @@ export const createProviderRoutes = (providerId, provider) => {
     links: [
       {
         id: "srv.profile",
-        to: `/signalProviders/${provider.id}/profile`,
+        to: `/signalProviders/${provider.id}`,
       },
       {
         id: "srv.analytics",

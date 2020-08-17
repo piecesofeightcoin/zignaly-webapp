@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Grow, Typography, Popper } from "@material-ui/core";
-import LogoWhite from "../../../images/logo/logoWhite.svg";
-import LogoBlack from "../../../images/logo/logoBlack.svg";
+import LogoWhite from "../../../images/logo/logoWhite.png";
+import LogoBlack from "../../../images/logo/logoBlack.png";
 import ProfileIcon from "../../../images/header/profileIcon.svg";
 import { useDispatch } from "react-redux";
 import LeftIcon from "../../../images/header/chevron-left.svg";
@@ -43,7 +43,7 @@ const Header = () => {
       justifyContent="space-between"
     >
       <Box alignItems="center" className={"logoContainer"} display="flex" flexDirection="row">
-        <Link to="/dashboard/positions">
+        <Link to="/dashboard">
           <img
             alt="zignaly-logo"
             className={"headerLogo"}

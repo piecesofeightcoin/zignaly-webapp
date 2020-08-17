@@ -1,11 +1,16 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import "./ContractsTable.scss";
-import { Box } from "@material-ui/core";
+import { Box, CircularProgress, Tooltip } from "@material-ui/core";
 import Table from "../../../../Table";
-import { composeContractsDataTable } from "../../../../../utils/composePositionsDataTable";
-// import tradeApi from "../../../../../services/tradeApiClient";
-// import useStoreSessionSelector from "../../../../../hooks/useStoreSessionSelector";
-// import { ConfirmDialog } from "../../../../Dialogs";
+import { formatFloat } from "../../../../../utils/format";
+import { Link } from "gatsby";
+import HighlightOffIcon from "@material-ui/icons/HighlightOff";
+import { ConfirmDialog } from "../../../../Dialogs";
+import { useDispatch } from "react-redux";
+import tradeApi from "../../../../../services/tradeApiClient";
+import useStoreSessionSelector from "../../../../../hooks/useStoreSessionSelector";
+import ModalPathContext from "../../../ModalPathContext";
+import { showErrorAlert } from "../../../../../store/actions/ui";
 
 /**
  * @typedef {import("../../../../../store/initialState").DefaultState} DefaultStateType
@@ -24,120 +29,167 @@ import { composeContractsDataTable } from "../../../../../utils/composePositions
  * @typedef {Object} DefaultProps
  * @property {string | React.ReactNode} title Table title.
  * @property {Array<ExchangeContractsObject>} list
+ * @property {Function} loadData
  *
  * @param {DefaultProps} props Component props.
  * @returns {JSX.Element} Component JSX.
  */
-const ContractsTable = ({ title, list }) => {
+const ContractsTable = ({ title, list, loadData }) => {
   const tablePersistsKey = "contractsTable";
-  // const storeSession = useStoreSessionSelector();
-
-  // /**
-  //  * @typedef {import("../../../../Dialogs/ConfirmDialog/ConfirmDialog").ConfirmDialogConfig} ConfirmDialogConfig
-  //  * @type {ConfirmDialogConfig} initConfirmConfig
-  //  */
-  // const initConfirmConfig = {
-  //   titleTranslationId: "",
-  //   messageTranslationId: "",
-  //   visible: false,
-  // };
-
-  // const [confirmConfig, setConfirmConfig] = useState(initConfirmConfig);
-  // const [actionData, setActionData] = useState({
-  //   positionId: "",
-  //   action: "",
-  // });
-
-  // /**
-  //  * Handle action element click event.
-  //  *
-  //  * @param {React.MouseEvent<HTMLButtonElement>} event Action element click.
-  //  * @returns {Void} None.
-  //  */
-  // const confirmAction = (event) => {
-  //   const targetElement = event.currentTarget;
-  //   const positionId = targetElement.getAttribute("data-position-id");
-  //   const action = targetElement.getAttribute("data-action");
-  //   setActionData({
-  //     action: action || "",
-  //     positionId: positionId || "",
-  //   });
-
-  //   if (action === "cancel") {
-  //     setConfirmConfig({
-  //       titleTranslationId: "confirm.positioncancel.title",
-  //       messageTranslationId: "confirm.positioncancel.message",
-  //       visible: true,
-  //     });
-  //   }
-
-  //   if (action === "exit") {
-  //     setConfirmConfig({
-  //       titleTranslationId: "confirm.positionexit.title",
-  //       messageTranslationId: "confirm.positionexit.message",
-  //       visible: true,
-  //     });
-  //   }
-  // };
-
-  // /**
-  //  * Handle confirm dialog post confirmation, action execution.
-  //  *
-  //  * @returns {Void} None.
-  //  */
-  // const executeAction = () => {
-  //   const { positionId, action } = actionData;
-  //   if (action === "cancel") {
-  //     tradeApi
-  //       .positionClose({
-  //         positionId: positionId,
-  //         token: storeSession.tradeApi.accessToken,
-  //       })
-  //       .then((position) => {
-  //         alert(`Position ${position.positionId} was cancelled.`);
-  //       })
-  //       .catch((e) => {
-  //         alert(`Cancel position failed: ${e.message}`);
-  //       });
-  //   }
-
-  //   if (action === "exit") {
-  //     tradeApi
-  //       .positionExit({
-  //         positionId: positionId,
-  //         token: storeSession.tradeApi.accessToken,
-  //       })
-  //       .then((position) => {
-  //         alert(`Position ${position.positionId} was exited.`);
-  //       })
-  //       .catch((e) => {
-  //         alert(`Exit position failed: ${e.message}`);
-  //       });
-  //   }
-  // };
+  const {
+    pathParams: { selectedAccount },
+  } = useContext(ModalPathContext);
+  const storeSession = useStoreSessionSelector();
+  const [loading, setLoading] = useState(false);
+  const [position, setPosition] = useState("");
 
   /**
-   * Compose MUI data table for positions collection of selected type.
-   *
-   * @returns {DataTableContent} Data table content.
+   * @typedef {import("../../../../Dialogs/ConfirmDialog/ConfirmDialog").ConfirmDialogConfig} ConfirmDialogConfig
+   * @type {ConfirmDialogConfig} initConfirmConfig
    */
-  const composeDataTableForOrders = () => {
-    let dataTable;
-    dataTable = composeContractsDataTable(list);
-    return dataTable;
+  const initConfirmConfig = {
+    titleTranslationId: "",
+    messageTranslationId: "",
+    visible: false,
   };
 
-  const { columns, data } = composeDataTableForOrders();
+  const [confirmConfig, setConfirmConfig] = useState(initConfirmConfig);
+  const dispatch = useDispatch();
+
+  /**
+   *
+   * @param {string} data ID of the user.
+   * @returns {void} None.
+   */
+  const confirmCancel = (data) => {
+    setPosition(data);
+    setConfirmConfig({
+      titleTranslationId: "contract.cancel.title",
+      messageTranslationId: "contract.cancel.subtitle",
+      visible: true,
+    });
+  };
+
+  /**
+   *
+   * @returns {void} None.
+   */
+  const cancelContract = () => {
+    setLoading(true);
+    const contract = list.find((item) => item.id === position);
+    const payload = {
+      token: storeSession.tradeApi.accessToken,
+      exchangeInternalId: selectedAccount.internalId,
+      symbol: contract.symbol,
+      amount: contract.amount.toString(),
+    };
+
+    tradeApi
+      .cancelExchangeContract(payload)
+      .then(() => {
+        setLoading(false);
+        loadData();
+      })
+      .catch((e) => {
+        dispatch(showErrorAlert(e));
+        setLoading(false);
+      });
+  };
+
+  /**
+   * Compose all action buttons element for a given position.
+   *
+   * @param {String} id Position entity to compose buttons for.
+   * @returns {JSX.Element} Composed JSX element.
+   */
+  function composePositionLinkButton(id) {
+    return <Link to={`/position/${id}`}>{id}</Link>;
+  }
+
+  /**
+   * @type {Array<MUIDataTableColumn>} Table columns
+   */
+  let columns = [
+    {
+      name: "positionId",
+      label: "col.positionid",
+      options: {
+        customBodyRender: composePositionLinkButton,
+      },
+    },
+    {
+      name: "symbol",
+      label: "col.orders.symbol",
+    },
+    {
+      name: "amount",
+      label: "col.amount",
+      options: {
+        customBodyRender: formatFloat,
+      },
+    },
+    {
+      name: "leverage",
+      label: "col.leverage",
+    },
+    {
+      name: "liquidationprice",
+      label: "col.contracts.liquidationprice",
+      options: {
+        customBodyRender: formatFloat,
+      },
+    },
+    {
+      name: "side",
+      label: "col.side",
+    },
+    {
+      name: "entryprice",
+      label: "col.entryprice",
+      options: {
+        customBodyRender: formatFloat,
+      },
+    },
+    {
+      name: "markprice",
+      label: "col.contracts.markprice",
+      options: {
+        customBodyRender: formatFloat,
+      },
+    },
+    {
+      name: "margin",
+      label: "col.contracts.margin",
+    },
+    {
+      name: "id",
+      label: "col.cancel",
+      options: {
+        customBodyRender: (val) => {
+          return loading && position === val ? (
+            <CircularProgress color="primary" size={24} />
+          ) : (
+            <Tooltip placement="top" title="Cancel">
+              <HighlightOffIcon
+                className="cancelIcon red" // @ts-ignore
+                onClick={() => confirmCancel(val)}
+              />
+            </Tooltip>
+          );
+        },
+      },
+    },
+  ];
 
   return (
     <>
-      {/* <ConfirmDialog
-        confirmConfig={confirmConfig}
-        executeActionCallback={executeAction}
-        setConfirmConfig={setConfirmConfig}
-      /> */}
       <Box className="contractsTable" display="flex" flexDirection="column" width={1}>
-        <Table columns={columns} data={data} persistKey={tablePersistsKey} title={title} />
+        <ConfirmDialog
+          confirmConfig={confirmConfig}
+          executeActionCallback={cancelContract}
+          setConfirmConfig={setConfirmConfig}
+        />
+        <Table columns={columns} data={list} persistKey={tablePersistsKey} title={title} />
       </Box>
     </>
   );

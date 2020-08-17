@@ -133,13 +133,14 @@ const DCAPanel = (props) => {
      */
     const fieldsDisabled = {};
     dcaAllIndexes.forEach((index) => {
-      const target = positionEntity ? positionEntity.reBuyTargets[Number(index)] : { done: false };
-
       let disabled = false;
-      if (target.done) {
-        disabled = true;
-      } else if (isReadOnly) {
-        disabled = true;
+      if (positionEntity) {
+        const target = positionEntity.reBuyTargets[Number(index)];
+        if (target.done || target.skipped) {
+          disabled = true;
+        } else if (isReadOnly) {
+          disabled = true;
+        }
       }
 
       fieldsDisabled[composeTargetPropertyName("rebuyPercentage", index)] = disabled;
@@ -224,7 +225,11 @@ const DCAPanel = (props) => {
     const rebuyPercentageProperty = composeTargetPropertyName("rebuyPercentage", targetId);
 
     const units = Math.abs(rebuyPositionSize / targetPrice);
-    return validateUnitsLimits(units, rebuyPercentageProperty, "terminal.dca.limit");
+    if (positionSize > 0) {
+      return validateUnitsLimits(units, rebuyPercentageProperty, "terminal.dca.limit");
+    }
+
+    return true;
   };
 
   /**
@@ -253,6 +258,7 @@ const DCAPanel = (props) => {
     }
 
     if (
+      positionSize > 0 &&
       !validateCostLimits(
         rebuyPositionSize,
         composeTargetPropertyName("rebuyPercentage", targetId),

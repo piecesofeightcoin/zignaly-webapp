@@ -9,6 +9,7 @@ export const START_TRADE_API_SESSION = "START_TRADE_API_SESSION";
 export const END_TRADE_API_SESSION = "END_TRADE_API_SESSION";
 export const REFRESH_SESSION_DATA = "REFRESH_SESSION_DATA_ACTION";
 export const CLEAR_SESSION_DATA = "CLEAR_SESSION_DATA_ACTION";
+export const SET_APP_VERSION = "SET_APP_VERSION";
 
 /**
  * @typedef {import("../../services/tradeApiClient.types").UserLoginPayload} UserLoginPayload
@@ -96,7 +97,7 @@ export const loadAppUserData = (response) => {
       const params = new URLSearchParams(
         typeof window !== "undefined" ? window.location.search : "",
       );
-      const path = params.get("ret") || "/dashboard/positions";
+      const path = params.get("ret") || "/dashboard";
       const pathPrefix = process.env.GATSBY_BASE_PATH || "";
       const pathWithoutPrefix = path.replace(pathPrefix, "");
       navigate(pathWithoutPrefix);
@@ -124,6 +125,23 @@ export const refreshSessionData = (token) => {
     } catch (e) {
       dispatch(showErrorAlert(e));
     }
+  };
+};
+
+/**
+ * Set currently used app version.
+ *
+ * Triggers at the moment when app was loaded so we can identify which app
+ * version is loaded in browser memory and perform automatic refresh when new
+ * release was launched.
+ *
+ * @param {string} version Semantic version number.
+ * @returns {*} Set version action object.
+ */
+export const setAppVersion = (version) => {
+  return {
+    type: SET_APP_VERSION,
+    payload: version,
   };
 };
 

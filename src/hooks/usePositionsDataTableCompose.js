@@ -1,6 +1,6 @@
 import React from "react";
 import { findIndex, isFunction, merge, partial } from "lodash";
-import { Link, navigate } from "gatsby";
+import { Link } from "gatsby";
 import { ExternalLink, Eye, TrendingUp, XCircle } from "react-feather";
 import { formatNumber, formatPrice } from "../utils/formatters";
 import { colors } from "../services/theme";
@@ -286,7 +286,7 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
     return (
       <>
         <span className={position.priceDifferenceStyle}>
-          {formatPrice(position.priceDifference)} %
+          {formatNumber(position.priceDifference, 2)} %
         </span>
       </>
     );
@@ -365,6 +365,17 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
         <span className={position.netProfitStyle}>{formatPrice(position.netProfit)}</span>
       </>
     );
+  }
+
+  /**
+   * Compose fee element for a given position.
+   *
+   * @param {number} dataIndex Data entity index.
+   * @returns {JSX.Element} Composed JSX element.
+   */
+  function renderFee(dataIndex) {
+    const position = positions[dataIndex];
+    return <span>{formatPrice(position.fees)}</span>;
   }
 
   /**
@@ -553,18 +564,6 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
   }
 
   /**
-   * Navigate to position detail page.
-   *
-   * @param {React.MouseEvent<HTMLButtonElement>} event Action element click.
-   * @returns {Void} None.
-   */
-  function gotoPositionDetail(event) {
-    const targetElement = event.currentTarget;
-    const positionId = targetElement.getAttribute("data-position-id");
-    navigate(`position/${positionId}`);
-  }
-
-  /**
    * Compose all action buttons element for a given position.
    *
    * @param {number} dataIndex Data entity index.
@@ -583,13 +582,12 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
    */
   function renderCancelActionButton(dataIndex) {
     const position = positions[dataIndex];
-    const { exchange, positionId, updating } = position;
-    const isZignaly = exchange.toLowerCase() === "zignaly";
+    const { positionId, closed } = position;
     const isProviderOwner = position.providerOwnerUserId === storeUserData.userId;
 
     return (
       <div className="actions">
-        {updating && !isZignaly && !isProviderOwner && (
+        {!closed && !isProviderOwner && (
           <button
             data-action={"cancel"}
             data-position-id={positionId}
@@ -614,15 +612,9 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
     const position = positions[dataIndex];
     return (
       <div className="actions">
-        <button
-          data-action={"view"}
-          data-position-id={position.positionId}
-          onClick={gotoPositionDetail}
-          title="View Position"
-          type="button"
-        >
+        <Link to={`/position/${position.positionId}`}>
           <Eye color={colors.purpleLight} />
-        </button>
+        </Link>
       </div>
     );
   }
@@ -663,7 +655,7 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
     // Override defaults on default sort column.
     if (columnId === defaultSortColumnId) {
       allOptions = merge(allOptions, {
-        options: { sort: true, sortDirection: "desc" },
+        options: { sort: true },
       });
     }
 
@@ -830,7 +822,7 @@ export function usePositionDataTableCompose(positions, confirmActionHandler) {
         propertyName: "reBuyTargetsCountPending",
         renderFunction: renderRebuyTargets,
       },
-      { columnId: "col.fees", propertyName: "fees", renderFunction: null },
+      { columnId: "col.fees", propertyName: "fees", renderFunction: renderFee },
       {
         columnId: "col.netprofit.percentage",
         propertyName: "netProfitPercentage",

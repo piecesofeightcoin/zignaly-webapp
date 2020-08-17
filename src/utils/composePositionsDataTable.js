@@ -1,6 +1,6 @@
 import React from "react";
 import { findIndex, merge } from "lodash";
-import { Link, navigate } from "gatsby";
+import { Link } from "gatsby";
 import {
   Edit2,
   ExternalLink,
@@ -321,18 +321,6 @@ function composeRawValue(value) {
 }
 
 /**
- * Navigate to position detail page.
- *
- * @param {React.MouseEvent<HTMLButtonElement>} event Action element click.
- * @returns {Void} None.
- */
-function gotoPositionDetail(event) {
-  const targetElement = event.currentTarget;
-  const positionId = targetElement.getAttribute("data-position-id");
-  navigate(`position/${positionId}`);
-}
-
-/**
  * Checks if viewed page is a position edit view.
  *
  * @param {PositionEntity} position Position entity to check.
@@ -363,9 +351,7 @@ export function composeAllActionButtons(position, confirmActionHandler) {
   const currentUserId = storeState.user ? storeState.user.userData.userId : "";
   const isProviderOwner = providerOwnerUserId === currentUserId;
   let updatingMessageId = "terminal.warning.updating";
-  if (status === 1) {
-    updatingMessageId = "terminal.warning.entering";
-  } else if (status > 9) {
+  if (status > 9) {
     updatingMessageId = "terminal.warning.exiting";
   }
 
@@ -383,13 +369,9 @@ export function composeAllActionButtons(position, confirmActionHandler) {
           placement="left-end"
           title={<FormattedMessage id="dashboard.positions.icon.view" />}
         >
-          <IconButton
-            className="iconPurple"
-            data-position-id={position.positionId}
-            onClick={gotoPositionDetail}
-          >
+          <Link to={`/position/${position.positionId}`}>
             <Eye />
-          </IconButton>
+          </Link>
         </Tooltip>
       )}
       {(!isCopyTrading || isCopyTrader) && !isEditView(position) && (
@@ -399,13 +381,9 @@ export function composeAllActionButtons(position, confirmActionHandler) {
           placement="left-end"
           title={<FormattedMessage id="dashboard.positions.icon.edit" />}
         >
-          <IconButton
-            className="iconPurple"
-            data-position-id={position.positionId}
-            onClick={gotoPositionDetail}
-          >
+          <Link to={`/position/${position.positionId}`}>
             <Edit2 />
-          </IconButton>
+          </Link>
         </Tooltip>
       )}
       {(!isCopyTrading || isCopyTrader || isProviderOwner) && !closed && !updating && status !== 1 && (
@@ -423,7 +401,7 @@ export function composeAllActionButtons(position, confirmActionHandler) {
           </div>
         </Tooltip>
       )}
-      {!updating && status === 1 && (
+      {(!isCopyTrading || isProviderOwner) && !updating && status === 1 && (
         <Tooltip
           arrow
           enterTouchDelay={50}
@@ -509,7 +487,7 @@ function composeColumnOptions(columnId, columnName = null) {
   // Override defaults on default sort column.
   if (columnId === defaultSortColumnId) {
     return merge(columnOptions, {
-      options: { sort: true, sortDirection: "desc" },
+      options: { sort: true },
     });
   }
 
@@ -635,16 +613,7 @@ export function composeManagementPositionsDataTable(positions, confirmActionHand
  * @returns {JSX.Element} Composed JSX element.
  */
 function composePositionLinkButton(positionId) {
-  return (
-    <span
-      className="positionLink"
-      data-position-id={positionId}
-      onClick={gotoPositionDetail}
-      title="View Position"
-    >
-      {positionId}
-    </span>
-  );
+  return <Link to={`/position/${positionId}`}>{positionId}</Link>;
 }
 
 /**
@@ -692,52 +661,5 @@ export function composeOrdersDataTable(positions, confirmActionHandler) {
   return {
     columns: columnsIds.map((column) => composeColumnOptions(column[0])),
     data: positions.map((order) => composeOpenOrdersRow(order, confirmActionHandler)),
-  };
-}
-
-/**
- * Compose MUI Data Table row for profile open position entity.
- *
- * @param {ExchangeContractsObject} contract Position entity to compose data table row for.
- * @returns {DataTableDataRow} Row data array.
- */
-function composeContractsRow(contract) {
-  return [
-    composePositionLinkButton(contract.positionId),
-    composeRawValue(contract.symbol),
-    composeRawValue(contract.amount),
-    composeRawValue(contract.leverage),
-    composeRawValue(contract.liquidationprice),
-    composeRawValue(contract.side),
-    composeRawValue(contract.entryprice),
-    composeRawValue(contract.markprice),
-    composeRawValue(contract.margin),
-    // composeOrdersCancelActionButton(order, confirmActionHandler),
-  ];
-}
-
-/**
- * Compose MUI Data Table data structure from positions entities collection.
- *
- * @export
- * @param {Array<ExchangeContractsObject>} contracts Positions collection.
- * @returns {DataTableContent} Open positions data table structure.
- */
-export function composeContractsDataTable(contracts) {
-  const columnsIds = [
-    ["col.positionid"],
-    ["col.orders.symbol"],
-    ["col.amount"],
-    ["col.leverage"],
-    ["col.contracts.liquidationprice"],
-    ["col.side"],
-    ["col.entryprice"],
-    ["col.contracts.markprice"],
-    ["col.contracts.margin"],
-  ];
-
-  return {
-    columns: columnsIds.map((column) => composeColumnOptions(column[0])),
-    data: contracts.map((contract) => composeContractsRow(contract)),
   };
 }

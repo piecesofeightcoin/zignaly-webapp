@@ -78,7 +78,7 @@ describe("Consume tradeApiClient service", () => {
     assert.isObject(positionsCollection[1], "Second collection position item is not an object.");
     positionEntityStructureAssertions(positionsCollection[0]);
     positionEntityStructureAssertions(positionsCollection[1]);
-  }, 10000);
+  }, 15000);
 
   it("should get user closed positions", async () => {
     const payload = {
@@ -93,7 +93,7 @@ describe("Consume tradeApiClient service", () => {
     assert.isObject(positionsCollection[1], "Second collection position item is not an object.");
     positionEntityStructureAssertions(positionsCollection[0]);
     positionEntityStructureAssertions(positionsCollection[1]);
-  }, 10000);
+  }, 15000);
 
   it("should get user log positions", async () => {
     const payload = {
@@ -119,7 +119,7 @@ describe("Consume tradeApiClient service", () => {
       true,
       "Second collection position item closed flag is not true.",
     );
-  }, 10000);
+  }, 15000);
 
   it("should get all the providers", async () => {
     const getProvidersPayload = {
@@ -217,23 +217,16 @@ describe("Consume tradeApiClient service", () => {
   });
 
   it("should get bases assets", async () => {
-    const loginPayload = {
-      email: process.env.GATSBY_API_TEST_USER,
-      password: process.env.GATSBY_API_TEST_PASS,
-      gRecaptchaResponse: "",
-    };
-
-    const userEntity = await client.userLogin(loginPayload);
     const payload = {
-      token: userEntity.token,
+      token: accessToken,
+      quote: "USDT",
       ro: true,
     };
 
     const basesAssets = await client.baseAssetsGet(payload);
-    assert.isObject(quoteAssets, "Base assets is not an object.");
-    assert.isObject(quoteAssets["BTC"], "BTC quote is not an object.");
-    assert.isString(quoteAssets["BTC"].minNominal, "BTC minNominal is not a string.");
-  });
+    assert.isObject(basesAssets, "Base assets is not an object.");
+    assert.isObject(basesAssets.BTC, "BTC quote is not an object.");
+  }, 15000);
 
   it("should get exchange connection market data", async () => {
     const payload = {
@@ -460,13 +453,12 @@ describe("Consume tradeApiClient service", () => {
 
     const dataPoints = await client.providerCopyTradingDataPointsGet(payload);
     assert.isObject(dataPoints, "response is not an object.");
-    assert.isArray(dataPoints.quote, "response does not have the quote of a provider.");
   }, 10000);
 
   it("should get assets for the exchange account", async () => {
     const payload = {
       token: accessToken,
-      internalId: "Binance1578301457_5e12f811deda4",
+      internalId: "Zignaly1586867845_5e95ae85e21ea",
     };
 
     const assets = await client.exchangeAssetsGet(payload);
@@ -477,7 +469,7 @@ describe("Consume tradeApiClient service", () => {
   it("should get deposit history for the exchange account", async () => {
     const payload = {
       token: accessToken,
-      internalId: "Binance1578301457_5e12f811deda4",
+      internalId: "Zignaly1586867845_5e95ae85e21ea",
     };
 
     const assets = await client.exchangeLastDepositsGet(payload);
@@ -487,7 +479,7 @@ describe("Consume tradeApiClient service", () => {
   it("should get withdraw history for the exchange account", async () => {
     const payload = {
       token: accessToken,
-      internalId: "Binance1578301457_5e12f811deda4",
+      internalId: "Zignaly1586867845_5e95ae85e21ea",
     };
 
     const assets = await client.exchangeLastWithdrawalsGet(payload);
@@ -497,7 +489,7 @@ describe("Consume tradeApiClient service", () => {
   it("should get deposit address for asset", async () => {
     const payload = {
       token: accessToken,
-      internalId: "Binance1578301457_5e12f811deda4",
+      internalId: "Zignaly1586867845_5e95ae85e21ea",
       asset: "BTC",
       network: "BTC",
     };
@@ -530,12 +522,12 @@ describe("Consume tradeApiClient service", () => {
   it("should get user's exchange orders for an exchange.", async () => {
     const payload = {
       token: accessToken,
-      exchangeInternalId: "Binance1578301457_5e12f811deda4",
+      exchangeInternalId: "Binance1586927630_5e96980e40f3a",
     };
 
     const response = await client.openOrdersGet(payload);
     assert.isArray(response, "Response is not an array.");
-  }, 10000);
+  }, 25000);
 
   it("should get user's session data.", async () => {
     const payload = {
@@ -556,21 +548,10 @@ describe("Consume tradeApiClient service", () => {
     assert.isObject(response, "Response is not an object.");
   }, 10000);
 
-  it("should clone a provider.", async () => {
-    const payload = {
-      token: accessToken,
-      providerId: "5edf6165fc869626686e8657",
-    };
-
-    const response = await client.cloneProvider(payload);
-    assert.isObject(response, "Response is not an object with provider ID");
-    assert.isString(response.providerId, "provider ID is not a string.");
-  }, 10000);
-
   it("should get management positions for provider.", async () => {
     const payload = {
       token: accessToken,
-      providerId: "5edf6165fc869626686e8657",
+      providerId: "5ee26419928896519668b62b",
     };
 
     const response = await client.providerManagementPositions(payload);
@@ -580,7 +561,7 @@ describe("Consume tradeApiClient service", () => {
   it("should get provider's followers list.", async () => {
     const payload = {
       token: accessToken,
-      providerId: "5edf6165fc869626686e8657",
+      providerId: "5ee26419928896519668b62b",
     };
 
     const response = await client.providerFollowersListGet(payload);
@@ -600,7 +581,7 @@ describe("Consume tradeApiClient service", () => {
   it("should get user's exchange assets.", async () => {
     const payload = {
       token: accessToken,
-      internalId: "Binance1578301457_5e12f811deda4",
+      internalId: "Zignaly1586867845_5e95ae85e21ea",
     };
 
     const response = await client.userExchangeAssetsGet(payload);

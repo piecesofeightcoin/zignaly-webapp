@@ -64,6 +64,10 @@
       &.copiers {
         margin: 5px 0 10px;
         min-width: fit-content;
+
+        span {
+          display: block;
+        }
       }
 
       &.price {
@@ -76,6 +80,12 @@
         justify-content: flex-end;
         margin: 5px 0 10px;
         min-width: fit-content;
+      }
+
+      &.allocated {
+        display: block;
+        margin: 5px auto;
+        width: fit-content;
       }
 
       span {

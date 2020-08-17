@@ -74,8 +74,23 @@ export const validateDecimals = (value, maxDecimals) => {
   if (!value) return false;
 
   const splitValueDot = value.split(".");
-  if (splitValueDot.length !== 2) return false;
+  // Handle incorrect number
+  if (splitValueDot.length > 2) return false;
 
-  const decimals = splitValueDot[1].length;
+  const decimals = splitValueDot.length === 1 ? 0 : splitValueDot[1].length;
   return decimals < maxDecimals;
 };
+
+/**
+ * Validate URL
+ * @param {string} value URL
+ * @returns {boolean} result
+ */
+export const validateURL = (value) =>
+  Boolean(
+    value.match(
+      new RegExp(
+        /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/,
+      ),
+    ),
+  );

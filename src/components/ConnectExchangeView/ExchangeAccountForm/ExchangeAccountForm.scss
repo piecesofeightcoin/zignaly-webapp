@@ -12,6 +12,11 @@
   .customSelectControl,
   .customInput {
     width: 100%;
+
+    textarea {
+      height: 120px;
+      overflow: auto;
+    }
   }
 
   .customSelect {
@@ -60,7 +65,7 @@
 
     .customInput {
       align-items: flex-start;
-      height: 100px;
+      height: 136px;
     }
   }
 }
@@ -76,18 +81,19 @@
       flex-direction: column;
     }
 
-    label,
-    .customSelect > span {
-      margin: 0 0 10px;
-      width: auto;
-    }
+    // label,
+    // .customSelect > span {
+    //   margin: 0 0 10px;
+    //   width: auto;
+    // }
 
     .customSelect {
       align-items: flex-start;
+      flex-direction: column;
 
-      > span {
-        text-align: left;
-      }
+      //   > span {
+      //     text-align: left;
+      //   }
     }
   }
 }

@@ -93,6 +93,12 @@ confirm.positionexit.message: "Are you sure you want to exit the position?"
 confirm.positionexit.title: "Exit Position"
 confirm.ordercancel.title: "Cancel Order"
 confirm.ordercancel.message: "Canceling this order will remove it from the exchange, if the order belong to Zignaly's open positions, mostly this position will fail. Please confirm that you want to cancel order # {order}"
+confirm.srv.unfollow.title: "Stop Following Provider"
+confirm.srv.unfollow.message: "Your positions will remains under provider management but you can always cancel them anytime you want directly from the exchange. Do you confirm?"
+confirm.copyt.unfollow.title: "Stop Copying Trader"
+confirm.copyt.unfollow.message: "Your positions will remains under trader management but you can always cancel them anytime you want directly from the exchange. Do you confirm?"
+confirm.appupdate.title: "Application Update"
+confirm.appupdate.message: "A new Zignaly webapp update was released, we need to refresh the page to take advantage of the latest improvements."
 
 # COLUMNS
 col.actions: "ACTIONS"
@@ -263,6 +269,8 @@ account.real: "Real"
 users.modify.title: "Add or substract day to the subscription"
 users.cancel.title: "Cancel Subscription"
 users.cancel.subtitle: "Are you sure you want to cancel this users subscription?"
+contract.cancel.title: "Cancel Contract"
+contract.cancel.subtitle: "Are you sure you want to cancel this contract?"
 users.enable.title: "Enable Subscription"
 users.enable.subtitle: "Are you sure you want to enable this users subscription?"
 users.modify.day: "day"
@@ -283,6 +291,7 @@ col.orders.datetime: "TIME"
 col.contracts.liquidationprice: "LIQUIDATION PRICE"
 col.contracts.markprice: "MARKET PRICE"
 col.contracts.margin: "MARGIN"
+positions.log.filter.status: "All statuses"
 
 # FILTERS AND SORT BY
 fil.allcoins: "All Coins"
@@ -299,6 +308,7 @@ fil.manual: "Manual"
 fil.type.short: "Short"
 fil.type.long: "Long"
 fil.providers.all: "All Providers"
+fil.providers: "Providers"
 fil.timeframe: "Time Frame"
 sort.sortby: "Sort By"
 sort.return: "Return"
@@ -319,6 +329,14 @@ timeframe.month.3: "Last 3 months"
 timeframe.month.6: "Last 6 months"
 timeframe.year: "Last year"
 timeframe.total: "Total"
+timeframe.yearly: "Yearly"
+timeframe.monthly: "Monthly"
+timeframe.weekly: "Weekly"
+timeframe.days.3: "Last 3 Days"
+timeframe.days.7: "Last 7 Days"
+timeframe.days.15: "Last 15 Days"
+timeframe.days.30: "Last 30 Days"
+timeframe.days.60: "Last 60 Days"
 
 # TRADERS AND PROVIDERS - SERVICE CARDS
 srv.settings.amounts: "Allocated amounts"
@@ -356,6 +374,7 @@ copyt.subtitle: "Copy experienced traders who trade with the currencies you own.
 
 copyt.allocated: "allocated of copytrader’s balance"
 copyt.copiers: "Copiers"
+srv.followers: "Followers"
 copyt.copierslast7: "Copiers last 7 days"
 copyt.copythistrader: "Copy this Trader"
 copyt.followingfrom: "Following from Account"
@@ -383,8 +402,7 @@ srv.followprovider: "Follow this provider"
 srv.stopfollowing: "Stop Following"
 srv.clonetrader: "Clone This Trader"
 srv.cloneprovider: "Clone This Provider"
-srv.deletetrader: "Delete This Trader"
-srv.deleteprovider: "Delete This Provider"
+srv.deletetrader: "Delete This Clone"
 srv.deleteprovider.alert.title: "Clone Deleted!"
 srv.deleteprovider.alert.body: "Successfully deleted Clone."
 srv.cloneform.title: "Clone Edit Form"
@@ -730,12 +748,20 @@ accounts.done: "Done"
 accounts.exchange: "Exchange"
 accounts.exchange.api: "Get 2 API Keys from Exchange"
 accounts.exchange.api.tip: "Where to find these keys?"
-accounts.exchange.api.tipdesc: "- Open binance.com on a new tab\n
+accounts.exchange.api.tip.binance: "- Open binance.com on a new tab\n
   - Log in to Binance\n
-  - Hover over profile and click “API Mangement”\n
+  - Hover over profile and click “API Management”\n
   - Give the API key a label at the top of the screen\n
   - Click create\n
   - Follow authentication instructions\n
+  - When done, copy the API keys of the newly created API back into the corresping input fields above\n
+  - Done"
+accounts.exchange.api.tip.kucoin: "- Open kucoin.com on a new tab\n
+  - Log in to your account\n
+  - In the dropdown menu, click “API Management“\n
+  - Enable the two security protection methods\n
+  - Click create API > Name Your Key> Enter passphrase (It's a password for the API key. Note it as you cannot add API to Zignaly without it)\n
+  - Click create\n
   - When done, copy the API keys of the newly created API back into the corresping input fields above\n
   - Done"
 accounts.exchange.choose: "Choose Exchange"
@@ -745,6 +771,7 @@ accounts.exchange.type: "Type"
 accounts.exchange.key: "Account API Key"
 accounts.exchange.secret: "Account API Secret"
 accounts.exchange.password: "Account API Passphrase"
+accounts.exchange.positionsettings.title: "Settings for Signal Provider Positions"
 accounts.exchanges: "Binance or KuCoin"
 accounts.nofunds: "No funds"
 accounts.next: "Next Step"
@@ -757,6 +784,8 @@ accounts.withdraw.history: "Withdraw History"
 accounts.selected: "Selected"
 accounts.orders: "Orders"
 accounts.contracts: "Contracts"
+accounts.exchangeconnected: "Exchange Connected"
+accounts.exchangedisconnected: "Exchange Disconnected"
 
 accounts.options.blacklist: "Global Blacklist"
 accounts.options.blacklist.help: "It won't open any position for symbols included here. Insert comma separated symbols. Only symbols are allowed (example: XRPBNB), individual coins will have no effect."
@@ -975,12 +1004,19 @@ status.83: "A position already exists for this market in this exchange account"
 status.84: "Margin is insufficient"
 status.85: "Your subscription to this service has been suspended by the service's provider"
 status.86: "The exchange responded that the position was no longer opened, so it couldn't be reduced"
+status.87: "Leverage tokens are not enabled in your account."
+status.88: "The configured exchange and or exchange type, does not match the one from the signal."
+status.89: "The current service does not allow clones."
+status.90: "The exchange attached to this position is no longer connected to your account."
+status.91: "The balance between the position and the contract does not match."
+status.92: "Hedge mode not supported"
 status.99: "Unknown Error, Pending Review"
 
 # ERROR CODES
 error.occured: "Error Occured"
 error.noidea: "Something went wrong!"
 error.paymentnotcompleted: "Payment not completed."
+error.apilatency: "We are experiencing a temporal degradation in our services response time."
 error.1: "Email exists in our DB"
 error.2: "Error Storing the document in the DB"
 error.3: "First Name field is mandatory"
@@ -1120,7 +1156,7 @@ form.error.value: "Enter a value"
 form.error.withdraw.min: "Please enter an amount above the minimum withdrawal amount."
 form.error.withdraw.max: "You do not have this amount available in your account."
 form.error.number.decimals: "Please enter numbers with no more than {maxDecimals} decimal places."
-form.error.url: "URL must start with http"
+form.error.url: "URL is not valid"
 
 # GENERAL
 general.yes: "Yes"
@@ -1142,3 +1178,11 @@ notfound.home: "Take me home"
 
 orders.alert.title: "Order Cancelled!"
 orders.alert.body: "Your order was successfully cancelled"
+copyt.follow.alert.title: "Success"
+copyt.follow.alert.body: "You are now copying this Trader!"
+copyt.unfollow.alert.title: "Success"
+copyt.unfollow.alert.body: "You are not copying this Trader anymore!"
+srv.follow.alert.title: "Success"
+srv.follow.alert.body: "You are now Following this Provider!"
+srv.unfollow.alert.title: "Success"
+srv.unfollow.alert.body: "You are not Following this Provider anymore!"

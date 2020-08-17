@@ -24,14 +24,13 @@ jobs:
         run: npm run tscheck
       - name: Test
         env:
-          GATSBY_API_KEY: ${{ secrets.GATSBY_API_KEY }}
           GATSBY_API_TEST_USER: ${{ secrets.GATSBY_API_TEST_USER }}
           GATSBY_API_TEST_PASS: ${{ secrets.GATSBY_API_TEST_PASS }}
         #run: npm test -- "tradeApiClient"
         run: echo "skipping tests"
-      - name: Build & Package
-        run: npm run build:test && npm run build:package
-      - name: Release
+      - name: Build
+        run: npm run build:test
+      - name: Package & Release
         env:
           GITHUB_AUTHOR_NAME: ${{ secrets.GITHUB_AUTHOR_NAME }}
           GITHUB_AUTHOR_EMAIL: ${{ secrets.GITHUB_AUTHOR_EMAIL }}
@@ -40,6 +39,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SEMANTIC_RELEASE_PACKAGE: ${{ secrets.SEMANTIC_RELEASE_PACKAGE }}
+          JIRA_AUTH: ${{ secrets.JIRA_AUTH }}
         run: npx semantic-release
       - name: Configure SSH
         run: |
@@ -78,4 +78,4 @@ jobs:
           ssh webapp $CMD_RELOAD
         env:
           UNPACK_DIRECTORY: /zignaly/test.zignaly.com/zignaly-webapp2-${{ env.WEBAPP_VERSION }}
-          APP_LINK: /zignaly/test.zignaly.com/app2
+          APP_LINK: /zignaly/test.zignaly.com/app
