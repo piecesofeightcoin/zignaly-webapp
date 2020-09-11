@@ -1,4 +1,5 @@
 .expandedRows {
+  position: relative;
   width: 100%;
 
   td {
@@ -15,5 +16,18 @@
 
   .checkbox {
     padding: 0;
+  }
+}
+
+.rowsParent {
+  display: table-row;
+  width: 100%;
+
+  td {
+    padding: 10px 0;
+  }
+
+  > div {
+    width: 100%;
   }
 }

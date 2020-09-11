@@ -3,6 +3,8 @@ import "./ExpandedRow.scss";
 import { TableRow, TableCell, Checkbox, CircularProgress } from "@material-ui/core";
 import useStoreSettingsSelector from "../../../../hooks/useStoreSettingsSelector";
 import { composeManagementPositionsDataTable } from "../../../../utils/composePositionsDataTable";
+// @ts-ignore
+import { FixedSizeList } from "react-window";
 
 /**
  *
@@ -15,7 +17,7 @@ import { composeManagementPositionsDataTable } from "../../../../utils/composePo
  * @property {Array<ManagementPositionsEntity>} values
  * @property {String} persistKey
  * @property {React.MouseEventHandler} confirmAction
- * @property {Number} index Index of parent row.
+ * @property {Number} rowIndex Index of parent row.
  * @property {Function} onSelectionChange
  * @property {Function} onAllSelection
  * @property {Array<String>} selectedRows
@@ -31,7 +33,7 @@ const ExpandedRow = ({
   values,
   persistKey,
   confirmAction,
-  index,
+  rowIndex,
   onSelectionChange,
   selectedRows,
   onAllSelection,
@@ -42,7 +44,7 @@ const ExpandedRow = ({
 
   const prepareList = () => {
     if (values.length) {
-      let positions = values[index] ? values[index].subPositions : [];
+      let positions = values[rowIndex] ? values[rowIndex].subPositions : [];
       let newList = [];
       let transformed = composeManagementPositionsDataTable(positions, confirmAction);
       let { data, columns } = transformed;
@@ -69,7 +71,7 @@ const ExpandedRow = ({
   const checkIfAllChecked = () => {
     if (selectedRows.length) {
       let allSelected = true;
-      const subPositions = values[index] ? values[index].subPositions : [];
+      const subPositions = values[rowIndex] ? values[rowIndex].subPositions : [];
       subPositions.forEach((position) => {
         if (!selectedRows.includes(position.positionId)) {
           allSelected = false;
@@ -93,7 +95,7 @@ const ExpandedRow = ({
    */
   const handleChange = (e, rowData) => {
     const obj = rowData.find((item) => item.id === "positionId");
-    onSelectionChange(index, obj.data);
+    onSelectionChange(rowIndex, obj.data);
   };
 
   /**
@@ -103,7 +105,7 @@ const ExpandedRow = ({
    */
   const handleChangeAll = (e) => {
     setCheckedAll(e.target.checked);
-    onAllSelection(index, e.target.checked);
+    onAllSelection(rowIndex, e.target.checked);
   };
 
   /**
@@ -126,7 +128,7 @@ const ExpandedRow = ({
    */
   const updating = (rowData) => {
     const obj = rowData.find((item) => item.id === "positionId");
-    const subPositions = values[index] ? values[index].subPositions : [];
+    const subPositions = values[rowIndex] ? values[rowIndex].subPositions : [];
     const position = subPositions.find((item) => item.positionId === obj.data.toString());
     if (position && position.updating) {
       return true;
@@ -135,7 +137,7 @@ const ExpandedRow = ({
   };
 
   const showCheckAllButton = () => {
-    const subPositions = values[index] ? values[index].subPositions : [];
+    const subPositions = values[rowIndex] ? values[rowIndex].subPositions : [];
     const updatingPositions = subPositions.filter((item) => item.updating);
     if (subPositions.length === updatingPositions.length) {
       return false;
@@ -143,45 +145,66 @@ const ExpandedRow = ({
     return true;
   };
 
+  /**
+   *
+   * @typedef {Object} DefaultRowProps
+   * @property {Number} index Row index.
+    Index of the row rendered in react-window.
+   */
+
+  /**
+   *
+   * @param {DefaultRowProps} props Row props.
+   * @returns {JSX.Element} JSx component.
+   */
+  const Row = ({ index }) => {
+    const row = list[index];
+    return (
+      <TableRow className="expandedRows">
+        {index === 0 && showCheckAllButton() ? (
+          <TableCell className="checkboxCell">
+            <Checkbox
+              checked={checkedAll}
+              className="checkbox"
+              onChange={(e) => handleChangeAll(e)}
+            />
+          </TableCell>
+        ) : (
+          <TableCell>&nbsp;</TableCell>
+        )}
+        {!updating(row) ? (
+          <TableCell className="checkboxCell">
+            <Checkbox
+              checked={checkedStatus(row)}
+              className="checkbox"
+              onChange={(e) => handleChange(e, row)}
+            />
+          </TableCell>
+        ) : (
+          <TableCell className="checkboxCell">
+            <CircularProgress color="primary" size={30} />
+          </TableCell>
+        )}
+        {row.map(
+          /* @ts-ignore */
+          (cell, i2) =>
+            cell.id !== "subPositions" &&
+            storeSettings.displayColumns[persistKey].includes(cell.id) && (
+              <TableCell key={i2}> {cell.data} </TableCell>
+            ),
+        )}
+      </TableRow>
+    );
+  };
+
   return (
-    <>
-      {list.map((row, i) => (
-        <TableRow className="expandedRows" key={i}>
-          {i === 0 && showCheckAllButton() ? (
-            <TableCell className="checkboxCell">
-              <Checkbox
-                checked={checkedAll}
-                className="checkbox"
-                onChange={(e) => handleChangeAll(e)}
-              />
-            </TableCell>
-          ) : (
-            <TableCell>&nbsp;</TableCell>
-          )}
-          {!updating(row) ? (
-            <TableCell className="checkboxCell">
-              <Checkbox
-                checked={checkedStatus(row)}
-                className="checkbox"
-                onChange={(e) => handleChange(e, row)}
-              />
-            </TableCell>
-          ) : (
-            <TableCell className="checkboxCell">
-              <CircularProgress color="primary" size={30} />
-            </TableCell>
-          )}
-          {row.map(
-            /* @ts-ignore */
-            (cell, i2) =>
-              cell.id !== "subPositions" &&
-              storeSettings.displayColumns[persistKey].includes(cell.id) && (
-                <TableCell key={i2}> {cell.data} </TableCell>
-              ),
-          )}
-        </TableRow>
-      ))}
-    </>
+    <TableRow className="rowsParent">
+      <TableCell colSpan={24}>
+        <FixedSizeList height={300} itemCount={list.length} itemSize={30}>
+          {Row}
+        </FixedSizeList>
+      </TableCell>
+    </TableRow>
   );
 };
 

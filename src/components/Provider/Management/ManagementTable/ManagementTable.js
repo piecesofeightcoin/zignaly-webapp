@@ -156,10 +156,10 @@ const ManagementTable = ({ list, allPositions, setLoading }) => {
     return (
       <ExpandedRow
         confirmAction={confirmAction}
-        index={rowMeta.dataIndex}
         onAllSelection={selectAllChild}
         onSelectionChange={handleRowSelectionChange}
         persistKey={tablePersistsKey}
+        rowIndex={rowMeta.dataIndex}
         selectedRows={selectedRows}
         values={allPositions}
       />
